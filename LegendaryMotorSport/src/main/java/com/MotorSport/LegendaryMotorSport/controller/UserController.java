@@ -1,7 +1,6 @@
 package com.MotorSport.LegendaryMotorSport.controller;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +8,7 @@ import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.service.UserService;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,7 +16,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
+    
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -48,7 +47,7 @@ public class UserController {
 
     // Buscar usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

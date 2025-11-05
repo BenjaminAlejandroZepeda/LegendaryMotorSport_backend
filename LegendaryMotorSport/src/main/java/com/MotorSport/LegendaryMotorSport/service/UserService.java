@@ -1,20 +1,19 @@
 package com.MotorSport.LegendaryMotorSport.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.repository.UserRepository;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
-    @Autowired
+   
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -31,11 +30,11 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findById(UUID id) {
+    public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    public void deleteUser(UUID id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 }
