@@ -18,14 +18,14 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // Crear un nuevo pedido
+ 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order savedOrder = orderService.saveOrder(order);
         return ResponseEntity.ok(savedOrder);
     }
 
-    // Obtener pedido por ID
+   
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         Optional<Order> orderOpt = orderService.getOrderById(id);
@@ -33,14 +33,14 @@ public class OrderController {
                        .orElse(ResponseEntity.notFound().build());
     }
 
-    // Obtener pedidos por usuario
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
         List<Order> orders = orderService.getOrdersByUserId(userId);
         return ResponseEntity.ok(orders);
     }
 
-    // Eliminar pedido por ID
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         if (orderService.getOrderById(id).isEmpty()) {

@@ -2,7 +2,6 @@ package com.MotorSport.LegendaryMotorSport.service;
 
 import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
 import com.MotorSport.LegendaryMotorSport.repository.VehicleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +12,7 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
     
-    @Autowired
+
     public VehicleService(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
     }
