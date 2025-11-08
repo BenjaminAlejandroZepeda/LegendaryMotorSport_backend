@@ -21,14 +21,14 @@ public class UserController {
         this.userService = userService;
     }
 
-    //  Registro de usuario
+ 
     @PostMapping("/register")
     ResponseEntity<User> registerUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }
 
-    // Login (simulado)
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User loginRequest) {
         Optional<User> userOpt = userService.findByUsername(loginRequest.getUsername());
@@ -45,7 +45,7 @@ public class UserController {
         }
     }
 
-    // Buscar usuario por ID
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.findById(id)
@@ -53,7 +53,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Buscar usuario por username
+
     @GetMapping("/username/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         return userService.findByUsername(username)
@@ -61,7 +61,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Buscar usuario por email
+
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         return userService.findByEmail(email)
