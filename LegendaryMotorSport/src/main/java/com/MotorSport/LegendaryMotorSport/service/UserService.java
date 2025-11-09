@@ -1,10 +1,8 @@
 package com.MotorSport.LegendaryMotorSport.service;
 
 import org.springframework.stereotype.Service;
-
 import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.repository.UserRepository;
-
 import java.util.Optional;
 
 
