@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con el registro, autenticación y consulta de usuarios")
@@ -36,21 +37,28 @@ public class UserController {
         @ApiResponse(responseCode = "401", description = "Contraseña incorrecta"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest) {
-        Optional<User> userOpt = userService.findByUsername(loginRequest.getUsername());
+        @PostMapping("/login")
+        public ResponseEntity<User> login(@RequestBody User loginRequest) {
+            Optional<User> userOpt = userService.findByEmail(loginRequest.getEmail());
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (user.getPassword().equals(loginRequest.getPassword())) {
-                return ResponseEntity.ok("Login exitoso");
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                if (user.getPassword().equals(loginRequest.getPassword())) {
+                    
+                    user.setLastLogin(LocalDateTime.now());
+                    userService.saveUser(user);
+
+                    
+                    return ResponseEntity.ok(user);
+                } else {
+                    return ResponseEntity.status(401).body(null); 
+                }
             } else {
-                return ResponseEntity.status(401).body("Contraseña incorrecta");
+                return ResponseEntity.status(404).body(null); 
             }
-        } else {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
         }
-    }
+
+
 
     @Operation(summary = "Obtiene un usuario por su ID")
     @ApiResponses(value = {

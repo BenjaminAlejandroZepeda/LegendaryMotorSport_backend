@@ -43,12 +43,13 @@ public class VehicleController {
     @Operation(summary = "Guarda uno o más vehículos en el sistema")
     @ApiResponse(responseCode = "200", description = "Vehículos guardados correctamente")
     @PostMapping
-    public void saveVehicles(@RequestBody Map<String, Vehicle> vehicles) {
-        vehicles.forEach((id, vehicle) -> {
-            vehicle.setId(id);
+    public void saveVehicles(@RequestBody Map<String, Vehicle> vehiclesMap) {
+        vehiclesMap.forEach((key, vehicle) -> {
+            vehicle.setId(key); 
             vehicleService.saveVehicle(vehicle);
         });
     }
+
 
     @Operation(summary = "Elimina un vehículo por su ID")
     @ApiResponses(value = {
