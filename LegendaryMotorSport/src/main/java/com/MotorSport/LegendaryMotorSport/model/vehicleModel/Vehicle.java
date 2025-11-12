@@ -38,12 +38,12 @@ public class Vehicle {
     private int price;
 
     @Schema(description = "Objeto que representa la velocidad máxima del vehículo")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "top_speed_id", referencedColumnName = "id")
     private TopSpeed topSpeed;
 
     @Schema(description = "Objeto que contiene las imágenes del vehículo desde distintos ángulos")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "images_id", referencedColumnName = "id")
     private VehicleImages images;
 }

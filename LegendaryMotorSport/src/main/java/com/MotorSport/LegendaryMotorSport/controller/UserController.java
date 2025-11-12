@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con el registro, autenticación y consulta de usuarios")
@@ -20,6 +22,15 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+
+    @Operation(summary = "Obtiene todos los usuarios registrados")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida correctamente")
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @Operation(summary = "Registra un nuevo usuario")
@@ -36,21 +47,26 @@ public class UserController {
         @ApiResponse(responseCode = "401", description = "Contraseña incorrecta"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest) {
-        Optional<User> userOpt = userService.findByUsername(loginRequest.getUsername());
+        @PostMapping("/login")
+        public ResponseEntity<User> login(@RequestBody User loginRequest) {
+            Optional<User> userOpt = userService.findByEmail(loginRequest.getEmail());
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (user.getPassword().equals(loginRequest.getPassword())) {
-                return ResponseEntity.ok("Login exitoso");
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                if (user.getPassword().equals(loginRequest.getPassword())) {
+                    
+                    user.setLastLogin(LocalDateTime.now());
+                    userService.saveUser(user);
+
+                    
+                    return ResponseEntity.ok(user);
+                } else {
+                    return ResponseEntity.status(401).body(null); 
+                }
             } else {
-                return ResponseEntity.status(401).body("Contraseña incorrecta");
+                return ResponseEntity.status(404).body(null); 
             }
-        } else {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
         }
-    }
 
     @Operation(summary = "Obtiene un usuario por su ID")
     @ApiResponses(value = {
@@ -87,4 +103,48 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @Operation(summary = "Actualiza los datos de un usuario existente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        Optional<User> existingUserOpt = userService.findById(id);
+
+        if (existingUserOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User existingUser = existingUserOpt.get();
+        
+        existingUser.setUsername(updatedUser.getUsername());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.setRole(updatedUser.getRole());
+
+        existingUser.setLastLogin(LocalDateTime.now());
+
+        User savedUser = userService.saveUser(existingUser);
+        return ResponseEntity.ok(savedUser);
+    }
+
+
+    @Operation(summary = "Elimina un usuario por su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario eliminado correctamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        Optional<User> userOpt = userService.findById(id);
+        if (userOpt.isPresent()) {
+            userService.deleteUser(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
