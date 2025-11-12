@@ -3,6 +3,9 @@ package com.MotorSport.LegendaryMotorSport.service;
 import org.springframework.stereotype.Service;
 import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.repository.UserRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -31,6 +34,25 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
+        public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+
+    public User updateUser(Long id, User userData) {
+        return userRepository.findById(id)
+            .map(user -> {
+                user.setUsername(userData.getUsername());
+                user.setEmail(userData.getEmail());
+                user.setPassword(userData.getPassword());
+                user.setRole(userData.getRole());
+                user.setLastLogin(LocalDateTime.now());
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

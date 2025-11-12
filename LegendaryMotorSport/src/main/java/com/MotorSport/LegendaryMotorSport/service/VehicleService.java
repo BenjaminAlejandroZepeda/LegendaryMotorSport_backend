@@ -29,6 +29,21 @@ public class VehicleService {
         return vehicleRepository.save(vehicle);
     }
 
+    public Vehicle updateVehicle(String id, Vehicle updatedVehicle) {
+    return vehicleRepository.findById(id)
+        .map(existing -> {
+            existing.setManufacturer(updatedVehicle.getManufacturer());
+            existing.setModel(updatedVehicle.getModel());
+            existing.setSeats(updatedVehicle.getSeats());
+            existing.setPrice(updatedVehicle.getPrice());
+            existing.setTopSpeed(updatedVehicle.getTopSpeed());
+            existing.setImages(updatedVehicle.getImages());
+            return vehicleRepository.save(existing);
+        })
+        .orElseThrow(() -> new RuntimeException("Vehículo no encontrado con ID: " + id));
+}
+
+
     public void deleteVehicle(String id) {
         vehicleRepository.deleteById(id);
     }
