@@ -1,12 +1,15 @@
 package com.MotorSport.LegendaryMotorSport.controller;
 
 import com.MotorSport.LegendaryMotorSport.model.User;
+import com.MotorSport.LegendaryMotorSport.service.JwtService;
 import com.MotorSport.LegendaryMotorSport.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,10 +23,15 @@ public class UserController {
 
     private final UserService userService;
 
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
 
     @Operation(summary = "Obtiene todos los usuarios registrados")
     @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida correctamente")
@@ -36,37 +44,73 @@ public class UserController {
     @Operation(summary = "Registra un nuevo usuario")
     @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente")
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(savedUser);
+
+        // Generar token
+        String token = jwtService.generateToken(savedUser);
+
+        // Devolver usuario + token
+        return ResponseEntity.ok(new RegisterResponse(savedUser, token));
     }
 
-    @Operation(summary = "Inicia sesión con nombre de usuario y contraseña")
+    public static class RegisterResponse {
+        private User user;
+        private String token;
+
+        public RegisterResponse(User user, String token) {
+            this.user = user;
+            this.token = token;
+        }
+
+        public User getUser() { return user; }
+        public String getToken() { return token; }
+    }
+
+
+    @Operation(summary = "Inicia sesión con correo electrónico y contraseña")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Login exitoso"),
         @ApiResponse(responseCode = "401", description = "Contraseña incorrecta"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-        @PostMapping("/login")
-        public ResponseEntity<User> login(@RequestBody User loginRequest) {
-            Optional<User> userOpt = userService.findByEmail(loginRequest.getEmail());
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User loginRequest) {
+        Optional<User> userOpt = userService.findByEmail(loginRequest.getEmail());
 
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                if (user.getPassword().equals(loginRequest.getPassword())) {
-                    
-                    user.setLastLogin(LocalDateTime.now());
-                    userService.saveUser(user);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
 
-                    
-                    return ResponseEntity.ok(user);
-                } else {
-                    return ResponseEntity.status(401).body(null); 
-                }
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                user.setLastLogin(LocalDateTime.now());
+                userService.saveUser(user);
+
+                // Generar token
+                String token = jwtService.generateToken(user);
+
+                // Devolver usuario + token
+                return ResponseEntity.ok(new LoginResponse(user, token));
             } else {
-                return ResponseEntity.status(404).body(null); 
+                return ResponseEntity.status(401).body("Contraseña incorrecta");
             }
+        } else {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
         }
+    }
+public static class LoginResponse {
+    private User user;
+    private String token;
+
+    public LoginResponse(User user, String token) {
+        this.user = user;
+        this.token = token;
+    }
+
+    public User getUser() { return user; }
+    public String getToken() { return token; }
+}
+
 
     @Operation(summary = "Obtiene un usuario por su ID")
     @ApiResponses(value = {
@@ -118,18 +162,18 @@ public class UserController {
         }
 
         User existingUser = existingUserOpt.get();
-        
         existingUser.setUsername(updatedUser.getUsername());
         existingUser.setEmail(updatedUser.getEmail());
-        existingUser.setPassword(updatedUser.getPassword());
+      
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
         existingUser.setRole(updatedUser.getRole());
-
         existingUser.setLastLogin(LocalDateTime.now());
 
         User savedUser = userService.saveUser(existingUser);
         return ResponseEntity.ok(savedUser);
     }
-
 
     @Operation(summary = "Elimina un usuario por su ID")
     @ApiResponses(value = {

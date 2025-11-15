@@ -30,14 +30,14 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Schema(description = "Contraseña del usuario (en texto plano o cifrada)", example = "1234")
+    @Schema(description = "Contraseña del usuario", example = "1234")
     @Column(nullable = false)
     private String password;
 
-    @Schema(description = "Rol asignado al usuario (por ejemplo: ADMIN, CLIENTE)", example = "CLIENTE")
+    @Schema(description = "Rol asignado al usuario", example = "CLIENTE")
     @Column(nullable = false)
     private String role;
 
-    @Schema(description = "Fecha y hora del último inicio de sesión", example = "2025-11-10T01:00:00")
+    @Schema(description = "Fecha y hora del último inicio de sesión")
     private LocalDateTime lastLogin;
 }

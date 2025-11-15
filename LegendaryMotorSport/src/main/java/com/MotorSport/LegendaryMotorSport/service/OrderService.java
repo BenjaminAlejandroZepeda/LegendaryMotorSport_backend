@@ -1,21 +1,21 @@
 package com.MotorSport.LegendaryMotorSport.service;
 
-import com.MotorSport.LegendaryMotorSport.model.orderModel.Order;
-import com.MotorSport.LegendaryMotorSport.model.orderModel.OrderItem;
+import com.MotorSport.LegendaryMotorSport.model.orderModel.*;
 import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
+import com.MotorSport.LegendaryMotorSport.model.vehicleModel.VehicleDTO;
 import com.MotorSport.LegendaryMotorSport.repository.OrderRepository;
 import com.MotorSport.LegendaryMotorSport.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final VehicleRepository vehicleRepository;
-
 
     public OrderService(OrderRepository orderRepository, VehicleRepository vehicleRepository) {
         this.orderRepository = orderRepository;
@@ -29,10 +29,8 @@ public class OrderService {
 
         for (OrderItem item : order.getItems()) {
             String vehicleId = item.getVehicle().getId();
-
             Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado: " + vehicleId));
-
+                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado: " + vehicleId));
             item.setVehicle(vehicle);
             item.setOrder(order);
             item.setPrecioUnitario(vehicle.getPrice());
@@ -52,5 +50,41 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+  
+    public OrderDTO mapToDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setUserId(order.getUserId());
+        dto.setFechaPedido(order.getFechaPedido());
+        dto.setEstado(order.getEstado());
+        dto.setDireccionEnvio(order.getDireccionEnvio());
+        dto.setItems(order.getItems().stream()
+                .map(this::mapItemToDTO)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    private OrderItemDTO mapItemToDTO(OrderItem item) {
+        OrderItemDTO dto = new OrderItemDTO();
+        dto.setId(item.getId());
+        dto.setCantidad(item.getCantidad());
+        dto.setPrecioUnitario(item.getPrecioUnitario());
+        dto.setPrecioTotal(item.getPrecioTotal());
+        dto.setVehicle(mapVehicleToDTO(item.getVehicle()));
+        return dto;
+    }
+
+    private VehicleDTO mapVehicleToDTO(Vehicle vehicle) {
+        VehicleDTO dto = new VehicleDTO();
+        dto.setId(vehicle.getId());
+        dto.setManufacturer(vehicle.getManufacturer());
+        dto.setModel(vehicle.getModel());
+        dto.setPrice(vehicle.getPrice());
+        dto.setSeats(vehicle.getSeats());
+        dto.setTopSpeed(vehicle.getTopSpeed());
+        dto.setImages(vehicle.getImages());
+        return dto;
     }
 }

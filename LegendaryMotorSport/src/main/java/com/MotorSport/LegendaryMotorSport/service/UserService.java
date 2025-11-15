@@ -1,26 +1,39 @@
 package com.MotorSport.LegendaryMotorSport.service;
 
-import org.springframework.stereotype.Service;
 import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-   
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+ 
+    public User registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+
+    public boolean checkPassword(User user, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
     public Optional<User> findByUsername(String username) {
@@ -35,7 +48,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-        public List<User> findAllUsers() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
@@ -45,7 +58,8 @@ public class UserService {
             .map(user -> {
                 user.setUsername(userData.getUsername());
                 user.setEmail(userData.getEmail());
-                user.setPassword(userData.getPassword());
+          
+                user.setPassword(passwordEncoder.encode(userData.getPassword()));
                 user.setRole(userData.getRole());
                 user.setLastLogin(LocalDateTime.now());
                 return userRepository.save(user);
@@ -53,7 +67,7 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-
+  
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
