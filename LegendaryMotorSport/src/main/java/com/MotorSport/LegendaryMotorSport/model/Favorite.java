@@ -17,22 +17,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Favorite {
 
-    @Schema(description = "ID único del registro de favorito", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Usuario que marcó el vehículo como favorito")
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Schema(description = "Vehículo marcado como favorito")
     @ManyToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
-    @Schema(description = "Fecha en que se guardó el vehículo como favorito", example = "2025-11-10T01:00:00")
     @Column(nullable = false)
     private LocalDateTime fechaGuardado;
+
+
+    public Favorite(User user, Vehicle vehicle) {
+        this.user = user;
+        this.vehicle = vehicle;
+        this.fechaGuardado = LocalDateTime.now();
+    }
 }
