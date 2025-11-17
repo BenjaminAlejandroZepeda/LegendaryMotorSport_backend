@@ -36,13 +36,15 @@ public class ReviewController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review updatedReview) {
-        return reviewService.getReviewById(id).map(existingReview -> {
-            existingReview.setComentario(updatedReview.getComentario());
-            existingReview.setPuntuacion(updatedReview.getPuntuacion());
-            existingReview.setFecha(LocalDateTime.now());
-            Review savedReview = reviewService.createReview(existingReview);
-            return ResponseEntity.ok(savedReview);
-        }).orElse(ResponseEntity.notFound().build());
+        return reviewService.getReviewById(id)
+                .map(existingReview -> {
+                    existingReview.setComentario(updatedReview.getComentario());
+                    existingReview.setPuntuacion(updatedReview.getPuntuacion());
+                    existingReview.setFecha(LocalDateTime.now());
+                    Review savedReview = reviewService.createReview(existingReview);
+                    return ResponseEntity.ok(savedReview);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Obtiene todas las reseñas registradas")

@@ -1,7 +1,7 @@
 package com.MotorSport.LegendaryMotorSport.serviceTest;
 
-import com.MotorSport.LegendaryMotorSport.model.Garage;
 import com.MotorSport.LegendaryMotorSport.model.User;
+import com.MotorSport.LegendaryMotorSport.model.Garage.Garage;
 import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
 import com.MotorSport.LegendaryMotorSport.repository.GarageRepository;
 import com.MotorSport.LegendaryMotorSport.service.GarageService;

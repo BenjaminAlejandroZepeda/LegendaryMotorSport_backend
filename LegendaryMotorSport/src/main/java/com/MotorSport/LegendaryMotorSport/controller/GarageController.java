@@ -1,36 +1,62 @@
 package com.MotorSport.LegendaryMotorSport.controller;
 
-import com.MotorSport.LegendaryMotorSport.model.Garage;
+
+import com.MotorSport.LegendaryMotorSport.model.User;
+import com.MotorSport.LegendaryMotorSport.model.Garage.Garage;
+import com.MotorSport.LegendaryMotorSport.model.Garage.GarageRequest;
+import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
 import com.MotorSport.LegendaryMotorSport.service.GarageService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.MotorSport.LegendaryMotorSport.service.UserService;
+import com.MotorSport.LegendaryMotorSport.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Tag(name = "Garage", description = "Operaciones relacionadas con el garaje del usuario")
 @RestController
 @RequestMapping("/api/garage")
 public class GarageController {
 
     @Autowired
-    private GarageService garageItemService;
+    private GarageService garageService;
 
-    @Operation(summary = "Agrega un vehículo al garaje del usuario")
-    @ApiResponse(responseCode = "200", description = "Vehículo agregado exitosamente al garaje")
-    @PostMapping
-    public ResponseEntity<Garage> addToGarage(@RequestBody Garage item) {
-        Garage nuevoItem = garageItemService.addToGarage(item);
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private VehicleService vehicleService;
+
+    @PostMapping("/add")
+    public ResponseEntity<Garage> addToGarage(
+            @RequestBody GarageRequest request,
+            @AuthenticationPrincipal UserDetails currentUser
+    ) {
+        User user = userService.findByEmail(currentUser.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Vehicle vehicle = vehicleService.getVehicleById(request.getVehicleId())
+                .orElseThrow(() -> new RuntimeException("Vehicle not found: " + request.getVehicleId()));
+
+        Garage item = new Garage();
+        item.setUser(user);
+        item.setVehicle(vehicle);
+        item.setFechaCompra(LocalDateTime.now());
+
+        Garage nuevoItem = garageService.addToGarage(item);
         return ResponseEntity.ok(nuevoItem);
     }
 
-    @Operation(summary = "Obtiene todos los vehículos del garaje de un usuario")
-    @ApiResponse(responseCode = "200", description = "Listado de vehículos del garaje obtenido correctamente")
-    @GetMapping("/usuario/{userId}")
-    public ResponseEntity<List<Garage>> getGarageByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(garageItemService.getGarageByUser(userId));
+    @GetMapping
+    public ResponseEntity<List<Garage>> getGarageForCurrentUser(
+            @AuthenticationPrincipal UserDetails currentUser
+    ) {
+        User user = userService.findByEmail(currentUser.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return ResponseEntity.ok(garageService.getGarageByUser(user.getId()));
     }
 }

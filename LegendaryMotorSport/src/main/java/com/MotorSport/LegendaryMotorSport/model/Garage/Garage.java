@@ -1,5 +1,6 @@
-package com.MotorSport.LegendaryMotorSport.model;
+package com.MotorSport.LegendaryMotorSport.model.Garage;
 
+import com.MotorSport.LegendaryMotorSport.model.User;
 import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Schema(description = "Entidad que representa un vehículo comprado por un usuario y almacenado en su garaje")

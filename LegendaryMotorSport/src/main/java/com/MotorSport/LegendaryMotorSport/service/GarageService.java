@@ -3,7 +3,8 @@ package com.MotorSport.LegendaryMotorSport.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.MotorSport.LegendaryMotorSport.model.Garage;
+
+import com.MotorSport.LegendaryMotorSport.model.Garage.Garage;
 import com.MotorSport.LegendaryMotorSport.repository.GarageRepository;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.MotorSport.LegendaryMotorSport.controllerTest;
 
 import com.MotorSport.LegendaryMotorSport.controller.GarageController;
-import com.MotorSport.LegendaryMotorSport.model.Garage;
 import com.MotorSport.LegendaryMotorSport.model.User;
+import com.MotorSport.LegendaryMotorSport.model.Garage.Garage;
 import com.MotorSport.LegendaryMotorSport.model.vehicleModel.Vehicle;
 import com.MotorSport.LegendaryMotorSport.service.GarageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
